@@ -24,6 +24,17 @@ FCZ_TEAM_ID = 684  # FC Zürich team ID in API-Football
 SWISS_SUPER_LEAGUE_ID = 207  # Swiss Super League ID in API-Football
 
 
+def format_date(date_str):
+    """Format ISO date string to readable format"""
+    if not date_str:
+        return 'TBD'
+    try:
+        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        return dt.strftime('%d.%m.%Y %H:%M')
+    except ValueError:
+        return date_str
+
+
 def get_fcz_stats():
     """
     Fetch FC Zürich statistics from API or return sample data
@@ -86,9 +97,10 @@ def get_stats_from_api():
                 if standings_data and len(standings_data) > 0:
                     table = standings_data[0]  # First group (main standings)
                     formatted_standings = []
-                    for team in table:
+                    for team in table[:10]:  # Only process first 10 teams
                         team_data = team.get('team', {})
                         team_name = team_data.get('name', '')
+                        team_id = team_data.get('id')
                         all_stats = team.get('all', {})
                         
                         formatted_team = {
@@ -108,8 +120,8 @@ def get_stats_from_api():
                         }
                         formatted_standings.append(formatted_team)
                         
-                        # Check if this is FC Zürich
-                        if 'Zürich' in team_name or 'Zurich' in team_name:
+                        # Check if this is FC Zürich by team ID
+                        if team_id == FCZ_TEAM_ID:
                             stats['position'] = team.get('rank')
                             stats['played'] = all_stats.get('played', 0)
                             stats['won'] = all_stats.get('win', 0)
@@ -120,7 +132,7 @@ def get_stats_from_api():
                             stats['goal_difference'] = team.get('goalsDiff', 0)
                             stats['points'] = team.get('points', 0)
                     
-                    stats['standings'] = formatted_standings[:10]
+                    stats['standings'] = formatted_standings
     except Exception as e:
         app.logger.error(f"Error fetching standings: {e}")
     
@@ -167,8 +179,8 @@ def get_stats_from_api():
                     home_goals = goals.get('home', 0)
                     away_goals = goals.get('away', 0)
                     
-                    # Determine opponent and result
-                    is_home = 'Zürich' in home_team.get('name', '') or 'Zurich' in home_team.get('name', '')
+                    # Determine opponent and result using team ID
+                    is_home = home_team.get('id') == FCZ_TEAM_ID
                     opponent = away_team.get('name', '') if is_home else home_team.get('name', '')
                     
                     if is_home:
@@ -185,14 +197,16 @@ def get_stats_from_api():
                     else:
                         result = 'D'
                     
-                    # Format date
+                    # Format date using helper function
                     match_date = fixture.get('date', '')
                     if match_date:
+                        formatted = format_date(match_date)
+                        # Convert to YYYY-MM-DD format for recent matches display
                         try:
                             dt = datetime.fromisoformat(match_date.replace('Z', '+00:00'))
                             match_date = dt.strftime('%Y-%m-%d')
                         except ValueError:
-                            pass
+                            match_date = formatted
                     
                     recent.append({
                         'opponent': opponent,
@@ -253,17 +267,6 @@ def get_sample_data():
             {'opponent': 'FC Basel 1893', 'result': 'L', 'score': '0-1', 'date': '2024-10-19'},
         ]
     }
-
-
-def format_date(date_str):
-    """Format ISO date string to readable format"""
-    if not date_str:
-        return 'TBD'
-    try:
-        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        return dt.strftime('%d.%m.%Y %H:%M')
-    except ValueError:
-        return date_str
 
 
 @app.route('/')
