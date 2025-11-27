@@ -18,7 +18,11 @@ app = Flask(__name__)
 # Free tier: 100 requests/day
 # Using a fallback approach with sample data if API is unavailable
 
-API_KEY = os.environ.get('FOOTBALL_API_KEY', '')
+# Try to load API key from config.py first, then fall back to environment variable
+try:
+    from config import API_KEY
+except ImportError:
+    API_KEY = os.environ.get('FOOTBALL_API_KEY', '')
 FCZ_TEAM_NAME = "FC Zürich"
 FCZ_TEAM_ID = 684  # FC Zürich team ID in API-Football
 SWISS_SUPER_LEAGUE_ID = 207  # Swiss Super League ID in API-Football

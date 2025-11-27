@@ -23,6 +23,9 @@ Thumbs.db
 .env
 *.env
 
+# Config file with API key (use config.example.py as template)
+config.py
+
 # Logs
 *.log
 

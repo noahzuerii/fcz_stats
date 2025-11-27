@@ -51,6 +51,20 @@ open http://localhost:5000
 Für Live-Daten von API-Football können Sie einen kostenlosen API-Key verwenden:
 
 1. Registrieren Sie sich auf [API-Football](https://www.api-football.com/) (100 Anfragen/Tag gratis)
+
+**Option A: Config-Datei (Einfachste Methode)**
+
+2. Kopieren Sie `config.example.py` zu `config.py`:
+   ```bash
+   cp config.example.py config.py
+   ```
+3. Öffnen Sie `config.py` und fügen Sie Ihren API-Key ein:
+   ```python
+   API_KEY = "your_api_key_here"
+   ```
+
+**Option B: Umgebungsvariable**
+
 2. Erstellen Sie eine `.env` Datei:
    ```bash
    cp .env.example .env
