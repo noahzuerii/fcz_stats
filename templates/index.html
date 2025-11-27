@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FC Zürich Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <span class="logo-icon">⚽</span>
+                    <h1>{{ stats.team_name }}</h1>
+                </div>
+                <div class="league-info">
+                    <span class="league">{{ stats.league }}</span>
+                    <span class="season">Saison {{ stats.season }}</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Quick Stats Cards -->
+        <section class="stats-overview">
+            <div class="stat-card position">
+                <div class="stat-value">{{ stats.position or '-' }}</div>
+                <div class="stat-label">Tabellenplatz</div>
+            </div>
+            <div class="stat-card points">
+                <div class="stat-value">{{ stats.points }}</div>
+                <div class="stat-label">Punkte</div>
+            </div>
+            <div class="stat-card wins">
+                <div class="stat-value">{{ stats.won }}</div>
+                <div class="stat-label">Siege</div>
+            </div>
+            <div class="stat-card draws">
+                <div class="stat-value">{{ stats.drawn }}</div>
+                <div class="stat-label">Unentschieden</div>
+            </div>
+            <div class="stat-card losses">
+                <div class="stat-value">{{ stats.lost }}</div>
+                <div class="stat-label">Niederlagen</div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section class="goals-section">
+            <h2>Tore</h2>
+            <div class="goals-grid">
+                <div class="goal-card">
+                    <div class="goal-value for">{{ stats.goals_for }}</div>
+                    <div class="goal-label">Geschossen</div>
+                </div>
+                <div class="goal-card">
+                    <div class="goal-value against">{{ stats.goals_against }}</div>
+                    <div class="goal-label">Kassiert</div>
+                </div>
+                <div class="goal-card">
+                    <div class="goal-value diff {% if stats.goal_difference > 0 %}positive{% elif stats.goal_difference < 0 %}negative{% endif %}">
+                        {% if stats.goal_difference > 0 %}+{% endif %}{{ stats.goal_difference }}
+                    </div>
+                    <div class="goal-label">Tordifferenz</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Next Match Section -->
+        {% if stats.next_match %}
+        <section class="next-match-section">
+            <h2>Nächstes Spiel</h2>
+            <div class="match-card">
+                <div class="match-competition">{{ stats.next_match.competition }}</div>
+                <div class="match-teams">
+                    <div class="team home {% if 'Zürich' in stats.next_match.home_team %}fcz{% endif %}">
+                        {{ stats.next_match.home_team }}
+                    </div>
+                    <div class="vs">vs</div>
+                    <div class="team away {% if 'Zürich' in stats.next_match.away_team %}fcz{% endif %}">
+                        {{ stats.next_match.away_team }}
+                    </div>
+                </div>
+                <div class="match-details">
+                    <div class="match-date">📅 {{ format_date(stats.next_match.date) }}</div>
+                    {% if stats.next_match.venue %}
+                    <div class="match-venue">📍 {{ stats.next_match.venue }}</div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Recent Form Section -->
+        {% if stats.recent_matches %}
+        <section class="recent-form-section">
+            <h2>Letzte Spiele</h2>
+            <div class="recent-matches">
+                {% for match in stats.recent_matches %}
+                <div class="recent-match">
+                    <span class="result-badge {{ match.result|lower }}">{{ match.result }}</span>
+                    <span class="opponent">{{ match.opponent }}</span>
+                    <span class="score">{{ match.score }}</span>
+                    <span class="date">{{ match.date }}</span>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- League Table Section -->
+        <section class="table-section">
+            <h2>Tabelle</h2>
+            <div class="table-wrapper">
+                <table class="league-table">
+                    <thead>
+                        <tr>
+                            <th class="pos">#</th>
+                            <th class="team">Team</th>
+                            <th class="played">Sp</th>
+                            <th class="won">S</th>
+                            <th class="drawn">U</th>
+                            <th class="lost">N</th>
+                            <th class="gd">TD</th>
+                            <th class="points">Pkt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for team in stats.standings %}
+                        <tr class="{% if 'Zürich' in team.team.name %}highlight{% endif %}">
+                            <td class="pos">{{ team.position }}</td>
+                            <td class="team">{{ team.team.name }}</td>
+                            <td class="played">{{ team.playedGames }}</td>
+                            <td class="won">{{ team.won }}</td>
+                            <td class="drawn">{{ team.draw }}</td>
+                            <td class="lost">{{ team.lost }}</td>
+                            <td class="gd">{% if team.goalDifference > 0 %}+{% endif %}{{ team.goalDifference }}</td>
+                            <td class="points">{{ team.points }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>FC Zürich Stats Dashboard | Daten werden regelmässig aktualisiert</p>
+            <p class="disclaimer">Inoffizielle Statistik-Seite</p>
+        </div>
+    </footer>
+</body>
+</html>
