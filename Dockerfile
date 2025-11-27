@@ -8,7 +8,11 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# Install dependencies
+# Build arguments for proxy (optional, only used during build)
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+
+# Install dependencies (proxy is only used during this step if provided)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
