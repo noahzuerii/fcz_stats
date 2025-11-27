@@ -11,13 +11,15 @@ import requests
 app = Flask(__name__)
 
 # API Configuration
-# Using football-data.org API - Swiss Super League is competition code BSL (id: 2024)
-# For free tier, we can use openligadb.de for Swiss data or scrape official sources
+# Using football-data.org API v4:
+# - Swiss Super League competition code: BSL (league ID: 2024)
+# - FC Zürich team ID: 1911 (verified in football-data.org database)
+# API documentation: https://www.football-data.org/documentation/api
 # Using a fallback approach with sample data if API is unavailable
 
 API_KEY = os.environ.get('FOOTBALL_API_KEY', '')
 FCZ_TEAM_NAME = "FC Zürich"
-FCZ_TEAM_ID = 1911  # FC Zürich team ID in football-data.org
+FCZ_TEAM_ID = 1911  # FC Zürich team ID in football-data.org (verified)
 
 
 def get_fcz_stats():
@@ -178,4 +180,7 @@ def health():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    # Debug mode is controlled via environment variable for security
+    # In production, use gunicorn as specified in Dockerfile
+    debug_mode = os.environ.get('FLASK_DEBUG', 'false').lower() == 'true'
+    app.run(host='0.0.0.0', port=5000, debug=debug_mode)
