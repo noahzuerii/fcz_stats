@@ -48,9 +48,9 @@ open http://localhost:5000
 
 ### API Key (Optional)
 
-Für Live-Daten von football-data.org können Sie einen kostenlosen API-Key verwenden:
+Für Live-Daten von API-Football können Sie einen kostenlosen API-Key verwenden:
 
-1. Registrieren Sie sich auf [football-data.org](https://www.football-data.org/)
+1. Registrieren Sie sich auf [API-Football](https://www.api-football.com/) (100 Anfragen/Tag gratis)
 2. Erstellen Sie eine `.env` Datei:
    ```bash
    cp .env.example .env
@@ -99,7 +99,7 @@ fcz_stats/
 - **Backend:** Python 3.11, Flask 3.0
 - **Frontend:** HTML5, CSS3 (Vanilla)
 - **Deployment:** Docker, Gunicorn
-- **Daten:** football-data.org API (Optional)
+- **Daten:** API-Football (api-football.com) - Swiss Super League wird unterstützt
 
 ## Erreichbarkeit von überall
 
