@@ -1,0 +1,15 @@
+services:
+  fcz-stats:
+    build: .
+    container_name: fcz-stats-app
+    ports:
+      - "5000:5000"
+    environment:
+      - FOOTBALL_API_KEY=${FOOTBALL_API_KEY:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
