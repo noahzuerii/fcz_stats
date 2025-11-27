@@ -11,15 +11,28 @@ import requests
 app = Flask(__name__)
 
 # API Configuration
-# Using football-data.org API v4:
-# - Swiss Super League competition code: BSL (league ID: 2024)
-# - FC Zürich team ID: 1911 (verified in football-data.org database)
-# API documentation: https://www.football-data.org/documentation/api
+# Using API-Football (api-sports.io) which supports Swiss Super League
+# - Swiss Super League ID: 207
+# - FC Zürich team ID: 684
+# API documentation: https://www.api-football.com/documentation-v3
+# Free tier: 100 requests/day
 # Using a fallback approach with sample data if API is unavailable
 
 API_KEY = os.environ.get('FOOTBALL_API_KEY', '')
 FCZ_TEAM_NAME = "FC Zürich"
-FCZ_TEAM_ID = 1911  # FC Zürich team ID in football-data.org (verified)
+FCZ_TEAM_ID = 684  # FC Zürich team ID in API-Football
+SWISS_SUPER_LEAGUE_ID = 207  # Swiss Super League ID in API-Football
+
+
+def format_date(date_str):
+    """Format ISO date string to readable format"""
+    if not date_str:
+        return 'TBD'
+    try:
+        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
+        return dt.strftime('%d.%m.%Y %H:%M')
+    except ValueError:
+        return date_str
 
 
 def get_fcz_stats():
@@ -27,7 +40,7 @@ def get_fcz_stats():
     Fetch FC Zürich statistics from API or return sample data
     """
     try:
-        # Try to get data from football-data.org API
+        # Try to get data from API-Football
         if API_KEY:
             return get_stats_from_api()
     except Exception as e:
@@ -39,16 +52,24 @@ def get_fcz_stats():
 
 def get_stats_from_api():
     """
-    Fetch real data from football-data.org API
-    Swiss Super League competition ID: 2024
+    Fetch real data from API-Football (api-sports.io)
+    Swiss Super League ID: 207
+    FC Zürich team ID: 684
     """
-    headers = {'X-Auth-Token': API_KEY}
-    base_url = 'https://api.football-data.org/v4'
+    headers = {
+        'x-rapidapi-key': API_KEY,
+        'x-rapidapi-host': 'v3.football.api-sports.io'
+    }
+    base_url = 'https://v3.football.api-sports.io'
+    
+    # Get current season year
+    current_year = datetime.now().year
+    season = current_year if datetime.now().month >= 7 else current_year - 1
     
     stats = {
         'team_name': FCZ_TEAM_NAME,
         'league': 'Swiss Super League',
-        'season': '2024/25',
+        'season': f'{season}/{str(season + 1)[-2:]}',
         'position': None,
         'played': 0,
         'won': 0,
@@ -65,45 +86,138 @@ def get_stats_from_api():
     
     # Get standings
     try:
-        standings_url = f'{base_url}/competitions/BSL/standings'
-        response = requests.get(standings_url, headers=headers, timeout=10)
+        standings_url = f'{base_url}/standings'
+        params = {'league': SWISS_SUPER_LEAGUE_ID, 'season': season}
+        response = requests.get(standings_url, headers=headers, params=params, timeout=10)
         if response.status_code == 200:
             data = response.json()
-            for standing in data.get('standings', []):
-                if standing.get('type') == 'TOTAL':
-                    for team in standing.get('table', []):
-                        if 'Zürich' in team.get('team', {}).get('name', ''):
-                            stats['position'] = team.get('position')
-                            stats['played'] = team.get('playedGames', 0)
-                            stats['won'] = team.get('won', 0)
-                            stats['drawn'] = team.get('draw', 0)
-                            stats['lost'] = team.get('lost', 0)
-                            stats['goals_for'] = team.get('goalsFor', 0)
-                            stats['goals_against'] = team.get('goalsAgainst', 0)
-                            stats['goal_difference'] = team.get('goalDifference', 0)
+            if data.get('response') and len(data['response']) > 0:
+                league_data = data['response'][0].get('league', {})
+                standings_data = league_data.get('standings', [])
+                if standings_data and len(standings_data) > 0:
+                    table = standings_data[0]  # First group (main standings)
+                    formatted_standings = []
+                    for team in table[:10]:  # Only process first 10 teams
+                        team_data = team.get('team', {})
+                        team_name = team_data.get('name', '')
+                        team_id = team_data.get('id')
+                        all_stats = team.get('all', {})
+                        
+                        formatted_team = {
+                            'position': team.get('rank'),
+                            'team': {
+                                'name': team_name,
+                                'crest': team_data.get('logo', '')
+                            },
+                            'playedGames': all_stats.get('played', 0),
+                            'won': all_stats.get('win', 0),
+                            'draw': all_stats.get('draw', 0),
+                            'lost': all_stats.get('lose', 0),
+                            'goalsFor': all_stats.get('goals', {}).get('for', 0),
+                            'goalsAgainst': all_stats.get('goals', {}).get('against', 0),
+                            'goalDifference': team.get('goalsDiff', 0),
+                            'points': team.get('points', 0)
+                        }
+                        formatted_standings.append(formatted_team)
+                        
+                        # Check if this is FC Zürich by team ID
+                        if team_id == FCZ_TEAM_ID:
+                            stats['position'] = team.get('rank')
+                            stats['played'] = all_stats.get('played', 0)
+                            stats['won'] = all_stats.get('win', 0)
+                            stats['drawn'] = all_stats.get('draw', 0)
+                            stats['lost'] = all_stats.get('lose', 0)
+                            stats['goals_for'] = all_stats.get('goals', {}).get('for', 0)
+                            stats['goals_against'] = all_stats.get('goals', {}).get('against', 0)
+                            stats['goal_difference'] = team.get('goalsDiff', 0)
                             stats['points'] = team.get('points', 0)
-                    stats['standings'] = standing.get('table', [])[:10]
+                    
+                    stats['standings'] = formatted_standings
     except Exception as e:
         app.logger.error(f"Error fetching standings: {e}")
     
     # Get next match
     try:
-        matches_url = f'{base_url}/teams/{FCZ_TEAM_ID}/matches?status=SCHEDULED&limit=1'
-        response = requests.get(matches_url, headers=headers, timeout=10)
+        fixtures_url = f'{base_url}/fixtures'
+        params = {'team': FCZ_TEAM_ID, 'next': 1}
+        response = requests.get(fixtures_url, headers=headers, params=params, timeout=10)
         if response.status_code == 200:
             data = response.json()
-            matches = data.get('matches', [])
-            if matches:
-                match = matches[0]
+            if data.get('response') and len(data['response']) > 0:
+                match = data['response'][0]
+                fixture = match.get('fixture', {})
+                teams = match.get('teams', {})
+                league = match.get('league', {})
+                venue = fixture.get('venue', {})
+                
                 stats['next_match'] = {
-                    'home_team': match.get('homeTeam', {}).get('name', 'TBD'),
-                    'away_team': match.get('awayTeam', {}).get('name', 'TBD'),
-                    'date': match.get('utcDate', ''),
-                    'competition': match.get('competition', {}).get('name', 'Swiss Super League'),
-                    'venue': match.get('venue', 'TBD')
+                    'home_team': teams.get('home', {}).get('name', 'TBD'),
+                    'away_team': teams.get('away', {}).get('name', 'TBD'),
+                    'date': fixture.get('date', ''),
+                    'competition': league.get('name', 'Swiss Super League'),
+                    'venue': venue.get('name', 'TBD')
                 }
     except Exception as e:
         app.logger.error(f"Error fetching next match: {e}")
+    
+    # Get recent matches
+    try:
+        fixtures_url = f'{base_url}/fixtures'
+        params = {'team': FCZ_TEAM_ID, 'last': 5}
+        response = requests.get(fixtures_url, headers=headers, params=params, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('response'):
+                recent = []
+                for match in data['response']:
+                    fixture = match.get('fixture', {})
+                    teams = match.get('teams', {})
+                    goals = match.get('goals', {})
+                    
+                    home_team = teams.get('home', {})
+                    away_team = teams.get('away', {})
+                    home_goals = goals.get('home', 0)
+                    away_goals = goals.get('away', 0)
+                    
+                    # Determine opponent and result using team ID
+                    is_home = home_team.get('id') == FCZ_TEAM_ID
+                    opponent = away_team.get('name', '') if is_home else home_team.get('name', '')
+                    
+                    if is_home:
+                        fcz_goals = home_goals
+                        opp_goals = away_goals
+                    else:
+                        fcz_goals = away_goals
+                        opp_goals = home_goals
+                    
+                    if fcz_goals > opp_goals:
+                        result = 'W'
+                    elif fcz_goals < opp_goals:
+                        result = 'L'
+                    else:
+                        result = 'D'
+                    
+                    # Format date using helper function
+                    match_date = fixture.get('date', '')
+                    if match_date:
+                        formatted = format_date(match_date)
+                        # Convert to YYYY-MM-DD format for recent matches display
+                        try:
+                            dt = datetime.fromisoformat(match_date.replace('Z', '+00:00'))
+                            match_date = dt.strftime('%Y-%m-%d')
+                        except ValueError:
+                            match_date = formatted
+                    
+                    recent.append({
+                        'opponent': opponent,
+                        'result': result,
+                        'score': f'{home_goals}-{away_goals}',
+                        'date': match_date
+                    })
+                
+                stats['recent_matches'] = recent
+    except Exception as e:
+        app.logger.error(f"Error fetching recent matches: {e}")
     
     return stats
 
@@ -153,17 +267,6 @@ def get_sample_data():
             {'opponent': 'FC Basel 1893', 'result': 'L', 'score': '0-1', 'date': '2024-10-19'},
         ]
     }
-
-
-def format_date(date_str):
-    """Format ISO date string to readable format"""
-    if not date_str:
-        return 'TBD'
-    try:
-        dt = datetime.fromisoformat(date_str.replace('Z', '+00:00'))
-        return dt.strftime('%d.%m.%Y %H:%M')
-    except ValueError:
-        return date_str
 
 
 @app.route('/')
