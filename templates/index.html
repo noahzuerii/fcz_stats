@@ -355,7 +355,7 @@
         new Chart(pointsCtx, {
             type: 'line',
             data: {
-                labels: {{ range(1, stats.points_progression|length + 1)|list|tojson if stats.points_progression else '[]' }},
+                labels: {{ stats.matchday_labels|tojson if stats.matchday_labels else '[]' }},
                 datasets: [{
                     label: 'Punkte',
                     data: {{ stats.points_progression|tojson if stats.points_progression else '[]' }},
@@ -413,7 +413,7 @@
         new Chart(goalsCtx, {
             type: 'bar',
             data: {
-                labels: {{ range(1, (stats.goals_by_matchday.scored|length if stats.goals_by_matchday else 0) + 1)|list|tojson }},
+                labels: {{ stats.matchday_labels|tojson if stats.matchday_labels else '[]' }},
                 datasets: [{
                     label: 'Geschossen',
                     data: {{ stats.goals_by_matchday.scored|tojson if stats.goals_by_matchday else '[]' }},

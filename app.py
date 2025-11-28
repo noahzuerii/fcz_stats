@@ -301,6 +301,7 @@ def get_sample_data():
             'scored': [2, 2, 1, 2, 1, 1, 1, 0, 1, 1, 0, 1, 3, 0, 1],
             'conceded': [1, 1, 2, 1, 1, 0, 1, 2, 1, 0, 2, 1, 1, 2, 2]
         },
+        'matchday_labels': list(range(1, 16)),  # Labels for charts (matchdays 1-15)
         'top_scorers': [
             {'name': 'Jonathan Okita', 'goals': 6, 'assists': 3},
             {'name': 'Juan José Perea', 'goals': 5, 'assists': 2},
