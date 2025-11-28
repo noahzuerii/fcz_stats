@@ -107,6 +107,11 @@ section h2 {
     gap: 20px;
 }
 
+.stats-overview.additional-stats {
+    margin-top: -20px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
 .stat-card {
     background: var(--fcz-white);
     border-radius: 12px;
@@ -146,6 +151,35 @@ section h2 {
 
 .stat-card.losses .stat-value {
     color: var(--danger);
+}
+
+/* Charts Section */
+.charts-section {
+    margin-bottom: 40px;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.chart-card {
+    background: var(--fcz-white);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+}
+
+.chart-card h3 {
+    color: var(--fcz-blue);
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.chart-card canvas {
+    max-height: 250px;
 }
 
 /* Goals Section */
@@ -188,6 +222,216 @@ section h2 {
 .goal-label {
     font-size: 0.9rem;
     color: var(--text-light);
+}
+
+/* Home vs Away Section */
+.home-away-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.location-card {
+    background: var(--fcz-white);
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: var(--card-shadow);
+}
+
+.location-card h3 {
+    color: var(--fcz-blue);
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.location-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.location-stat {
+    text-align: center;
+}
+
+.location-stat .stat-num {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--fcz-blue);
+}
+
+.location-stat .stat-num.success {
+    color: var(--success);
+}
+
+.location-stat .stat-num.warning {
+    color: var(--warning);
+}
+
+.location-stat .stat-num.danger {
+    color: var(--danger);
+}
+
+.location-stat .stat-num.highlight {
+    color: var(--fcz-gold);
+}
+
+.location-stat .stat-txt {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    text-transform: uppercase;
+}
+
+/* Monthly Statistics Table */
+.monthly-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--fcz-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+.monthly-table th {
+    background: var(--fcz-blue);
+    color: var(--fcz-white);
+    padding: 15px 12px;
+    text-align: center;
+    font-weight: 500;
+}
+
+.monthly-table td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.monthly-table td.month-name {
+    text-align: left;
+    font-weight: 500;
+}
+
+.monthly-table td.won {
+    color: var(--success);
+    font-weight: 600;
+}
+
+.monthly-table td.drawn {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.monthly-table td.lost {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.monthly-table td.points {
+    font-weight: 700;
+    color: var(--fcz-blue);
+}
+
+.monthly-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Scorers Section */
+.scorers-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.scorer-card {
+    background: var(--fcz-white);
+    border-radius: 12px;
+    padding: 15px 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: var(--card-shadow);
+}
+
+.scorer-rank {
+    width: 35px;
+    height: 35px;
+    background: var(--fcz-blue);
+    color: var(--fcz-white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.scorer-card:first-child .scorer-rank {
+    background: var(--fcz-gold);
+}
+
+.scorer-info {
+    flex: 1;
+}
+
+.scorer-name {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.scorer-stats {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 3px;
+}
+
+.scorer-stats .goals {
+    color: var(--success);
+    margin-right: 15px;
+}
+
+.scorer-stats .assists {
+    color: var(--fcz-blue);
+}
+
+.scorer-total {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--fcz-blue);
+}
+
+/* Form Badges */
+.form-badges {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.form-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--fcz-white);
+}
+
+.form-badge.w {
+    background: var(--success);
+}
+
+.form-badge.d {
+    background: var(--warning);
+    color: var(--text-dark);
+}
+
+.form-badge.l {
+    background: var(--danger);
 }
 
 /* Next Match Section */
@@ -362,6 +606,14 @@ section h2 {
     color: var(--fcz-blue);
 }
 
+.league-table td.gf {
+    color: var(--success);
+}
+
+.league-table td.ga {
+    color: var(--danger);
+}
+
 .league-table tr:last-child td {
     border-bottom: none;
 }
@@ -418,8 +670,20 @@ footer .disclaimer {
         font-size: 2.5rem;
     }
     
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .goals-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .home-away-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .location-stats {
+        grid-template-columns: repeat(3, 1fr);
     }
     
     .match-teams {
@@ -445,6 +709,12 @@ footer .disclaimer {
         padding: 10px 5px;
         font-size: 0.8rem;
     }
+
+    .form-badge {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
 }
 
 @media (max-width: 480px) {
@@ -458,5 +728,13 @@ footer .disclaimer {
     
     .stat-value {
         font-size: 2rem;
+    }
+
+    .location-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .location-stat .stat-num {
+        font-size: 1.4rem;
     }
 }
