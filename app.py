@@ -66,9 +66,8 @@ def get_stats_from_api():
     }
     base_url = 'https://v3.football.api-sports.io'
     
-    # Get current season year
-    current_year = datetime.now().year
-    season = current_year if datetime.now().month >= 7 else current_year - 1
+    # Fixed season year for 2024/25
+    season = 2024
     
     stats = {
         'team_name': FCZ_TEAM_NAME,
