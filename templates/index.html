@@ -33,19 +33,19 @@
                 <div class="stat-label">Tabellenplatz</div>
             </div>
             <div class="stat-card points">
-                <div class="stat-value">{{ stats.points }}</div>
+                <div class="stat-value">{{ stats.points if stats.points else '-' }}</div>
                 <div class="stat-label">Punkte</div>
             </div>
             <div class="stat-card wins">
-                <div class="stat-value">{{ stats.won }}</div>
+                <div class="stat-value">{{ stats.won if stats.won else '-' }}</div>
                 <div class="stat-label">Siege</div>
             </div>
             <div class="stat-card draws">
-                <div class="stat-value">{{ stats.drawn }}</div>
+                <div class="stat-value">{{ stats.drawn if stats.drawn else '-' }}</div>
                 <div class="stat-label">Unentschieden</div>
             </div>
             <div class="stat-card losses">
-                <div class="stat-value">{{ stats.lost }}</div>
+                <div class="stat-value">{{ stats.lost if stats.lost else '-' }}</div>
                 <div class="stat-label">Niederlagen</div>
             </div>
         </section>
@@ -55,16 +55,16 @@
             <h2>Tore</h2>
             <div class="goals-grid">
                 <div class="goal-card">
-                    <div class="goal-value for">{{ stats.goals_for }}</div>
+                    <div class="goal-value for">{{ stats.goals_for if stats.goals_for else '-' }}</div>
                     <div class="goal-label">Geschossen</div>
                 </div>
                 <div class="goal-card">
-                    <div class="goal-value against">{{ stats.goals_against }}</div>
+                    <div class="goal-value against">{{ stats.goals_against if stats.goals_against else '-' }}</div>
                     <div class="goal-label">Kassiert</div>
                 </div>
                 <div class="goal-card">
                     <div class="goal-value diff {% if stats.goal_difference > 0 %}positive{% elif stats.goal_difference < 0 %}negative{% endif %}">
-                        {% if stats.goal_difference > 0 %}+{% endif %}{{ stats.goal_difference }}
+                        {% if stats.goals_for or stats.goals_against %}{% if stats.goal_difference > 0 %}+{% endif %}{{ stats.goal_difference }}{% else %}-{% endif %}
                     </div>
                     <div class="goal-label">Tordifferenz</div>
                 </div>
@@ -135,12 +135,12 @@
                         <tr class="{% if 'Zürich' in team.team.name %}highlight{% endif %}">
                             <td class="pos">{{ team.position }}</td>
                             <td class="team">{{ team.team.name }}</td>
-                            <td class="played">{{ team.playedGames }}</td>
-                            <td class="won">{{ team.won }}</td>
-                            <td class="drawn">{{ team.draw }}</td>
-                            <td class="lost">{{ team.lost }}</td>
-                            <td class="gd">{% if team.goalDifference > 0 %}+{% endif %}{{ team.goalDifference }}</td>
-                            <td class="points">{{ team.points }}</td>
+                            <td class="played">{{ team.playedGames if team.playedGames else '-' }}</td>
+                            <td class="won">{{ team.won if team.won else '-' }}</td>
+                            <td class="drawn">{{ team.draw if team.draw else '-' }}</td>
+                            <td class="lost">{{ team.lost if team.lost else '-' }}</td>
+                            <td class="gd">{% if team.playedGames %}{% if team.goalDifference > 0 %}+{% endif %}{{ team.goalDifference }}{% else %}-{% endif %}</td>
+                            <td class="points">{{ team.points if team.points else '-' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
