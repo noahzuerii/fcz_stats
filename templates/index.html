@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FC Zürich Stats</title>
+    <title>FC Zürich Stats - Saison {{ stats.season }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <header>
@@ -50,6 +51,58 @@
             </div>
         </section>
 
+        <!-- Additional Stats Cards -->
+        {% if stats.clean_sheets is defined %}
+        <section class="stats-overview additional-stats">
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.clean_sheets }}</div>
+                <div class="stat-label">Zu-Null-Spiele</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "%.2f"|format(stats.avg_goals_per_match) }}</div>
+                <div class="stat-label">⌀ Tore/Spiel</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ "%.2f"|format(stats.avg_conceded_per_match) }}</div>
+                <div class="stat-label">⌀ Gegentore/Spiel</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ stats.win_percentage }}%</div>
+                <div class="stat-label">Siegquote</div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Charts Section -->
+        <section class="charts-section">
+            <h2>📊 Saison-Diagramme</h2>
+            <div class="charts-grid">
+                <!-- Points Progression Chart -->
+                <div class="chart-card">
+                    <h3>Punkteverlauf</h3>
+                    <canvas id="pointsChart"></canvas>
+                </div>
+                
+                <!-- Win/Draw/Loss Pie Chart -->
+                <div class="chart-card">
+                    <h3>Spielergebnisse</h3>
+                    <canvas id="resultsChart"></canvas>
+                </div>
+                
+                <!-- Goals Chart -->
+                <div class="chart-card">
+                    <h3>Tore pro Spieltag</h3>
+                    <canvas id="goalsChart"></canvas>
+                </div>
+                
+                <!-- Home vs Away Chart -->
+                <div class="chart-card">
+                    <h3>Heim vs. Auswärts</h3>
+                    <canvas id="homeAwayChart"></canvas>
+                </div>
+            </div>
+        </section>
+
         <!-- Goals Section -->
         <section class="goals-section">
             <h2>Tore</h2>
@@ -70,6 +123,130 @@
                 </div>
             </div>
         </section>
+
+        <!-- Home vs Away Stats -->
+        {% if stats.home_stats and stats.away_stats %}
+        <section class="home-away-section">
+            <h2>🏠 Heim vs. 🚗 Auswärts</h2>
+            <div class="home-away-grid">
+                <div class="location-card home">
+                    <h3>🏠 Heimspiele</h3>
+                    <div class="location-stats">
+                        <div class="location-stat">
+                            <span class="stat-num">{{ stats.home_stats.played }}</span>
+                            <span class="stat-txt">Spiele</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num success">{{ stats.home_stats.won }}</span>
+                            <span class="stat-txt">Siege</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num warning">{{ stats.home_stats.drawn }}</span>
+                            <span class="stat-txt">Remis</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num danger">{{ stats.home_stats.lost }}</span>
+                            <span class="stat-txt">Niederl.</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num">{{ stats.home_stats.goals_for }}:{{ stats.home_stats.goals_against }}</span>
+                            <span class="stat-txt">Tore</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num highlight">{{ stats.home_stats.points }}</span>
+                            <span class="stat-txt">Punkte</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="location-card away">
+                    <h3>🚗 Auswärtsspiele</h3>
+                    <div class="location-stats">
+                        <div class="location-stat">
+                            <span class="stat-num">{{ stats.away_stats.played }}</span>
+                            <span class="stat-txt">Spiele</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num success">{{ stats.away_stats.won }}</span>
+                            <span class="stat-txt">Siege</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num warning">{{ stats.away_stats.drawn }}</span>
+                            <span class="stat-txt">Remis</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num danger">{{ stats.away_stats.lost }}</span>
+                            <span class="stat-txt">Niederl.</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num">{{ stats.away_stats.goals_for }}:{{ stats.away_stats.goals_against }}</span>
+                            <span class="stat-txt">Tore</span>
+                        </div>
+                        <div class="location-stat">
+                            <span class="stat-num highlight">{{ stats.away_stats.points }}</span>
+                            <span class="stat-txt">Punkte</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Monthly Statistics Table -->
+        {% if stats.monthly_stats %}
+        <section class="monthly-section">
+            <h2>📅 Monatliche Statistik</h2>
+            <div class="table-wrapper">
+                <table class="monthly-table">
+                    <thead>
+                        <tr>
+                            <th>Monat</th>
+                            <th>Sp</th>
+                            <th>S</th>
+                            <th>U</th>
+                            <th>N</th>
+                            <th>Tore</th>
+                            <th>Pkt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for month in stats.monthly_stats %}
+                        <tr>
+                            <td class="month-name">{{ month.month }}</td>
+                            <td>{{ month.played }}</td>
+                            <td class="won">{{ month.won }}</td>
+                            <td class="drawn">{{ month.drawn }}</td>
+                            <td class="lost">{{ month.lost }}</td>
+                            <td>{{ month.goals_for }}:{{ month.goals_against }}</td>
+                            <td class="points">{{ month.points }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- Top Scorers Section -->
+        {% if stats.top_scorers %}
+        <section class="scorers-section">
+            <h2>⚽ Torschützen</h2>
+            <div class="scorers-list">
+                {% for scorer in stats.top_scorers %}
+                <div class="scorer-card">
+                    <div class="scorer-rank">{{ loop.index }}</div>
+                    <div class="scorer-info">
+                        <div class="scorer-name">{{ scorer.name }}</div>
+                        <div class="scorer-stats">
+                            <span class="goals">{{ scorer.goals }} Tore</span>
+                            <span class="assists">{{ scorer.assists }} Assists</span>
+                        </div>
+                    </div>
+                    <div class="scorer-total">{{ scorer.goals + scorer.assists }}</div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
 
         <!-- Next Match Section -->
         {% if stats.next_match %}
@@ -100,6 +277,11 @@
         {% if stats.recent_matches %}
         <section class="recent-form-section">
             <h2>Letzte Spiele</h2>
+            <div class="form-badges">
+                {% for result in stats.form_last_5 %}
+                <span class="form-badge {{ result|lower }}">{{ result }}</span>
+                {% endfor %}
+            </div>
             <div class="recent-matches">
                 {% for match in stats.recent_matches %}
                 <div class="recent-match">
@@ -126,6 +308,8 @@
                             <th class="won">S</th>
                             <th class="drawn">U</th>
                             <th class="lost">N</th>
+                            <th class="gf">T+</th>
+                            <th class="ga">T-</th>
                             <th class="gd">TD</th>
                             <th class="points">Pkt</th>
                         </tr>
@@ -139,6 +323,8 @@
                             <td class="won">{{ team.won }}</td>
                             <td class="drawn">{{ team.draw }}</td>
                             <td class="lost">{{ team.lost }}</td>
+                            <td class="gf">{{ team.goalsFor }}</td>
+                            <td class="ga">{{ team.goalsAgainst }}</td>
                             <td class="gd">{% if team.goalDifference > 0 %}+{% endif %}{{ team.goalDifference }}</td>
                             <td class="points">{{ team.points }}</td>
                         </tr>
@@ -151,9 +337,152 @@
 
     <footer>
         <div class="container">
-            <p>FC Zürich Stats Dashboard | Daten werden regelmässig aktualisiert</p>
+            <p>FC Zürich Stats Dashboard | Saison {{ stats.season }} | Daten werden regelmässig aktualisiert</p>
             <p class="disclaimer">Inoffizielle Statistik-Seite</p>
         </div>
     </footer>
+
+    <script>
+        // Chart.js Configuration
+        const fczBlue = '#0066b3';
+        const fczBlueDark = '#004d86';
+        const successColor = '#00b894';
+        const warningColor = '#fdcb6e';
+        const dangerColor = '#d63031';
+
+        // Points Progression Chart
+        const pointsCtx = document.getElementById('pointsChart').getContext('2d');
+        new Chart(pointsCtx, {
+            type: 'line',
+            data: {
+                labels: {{ range(1, stats.points_progression|length + 1)|list|tojson if stats.points_progression else '[]' }},
+                datasets: [{
+                    label: 'Punkte',
+                    data: {{ stats.points_progression|tojson if stats.points_progression else '[]' }},
+                    borderColor: fczBlue,
+                    backgroundColor: 'rgba(0, 102, 179, 0.1)',
+                    fill: true,
+                    tension: 0.3,
+                    pointBackgroundColor: fczBlue,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Spieltag' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Punkte' }
+                    }
+                }
+            }
+        });
+
+        // Win/Draw/Loss Pie Chart
+        const resultsCtx = document.getElementById('resultsChart').getContext('2d');
+        new Chart(resultsCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Siege', 'Unentschieden', 'Niederlagen'],
+                datasets: [{
+                    data: [{{ stats.won }}, {{ stats.drawn }}, {{ stats.lost }}],
+                    backgroundColor: [successColor, warningColor, dangerColor],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        // Goals per Matchday Chart
+        const goalsCtx = document.getElementById('goalsChart').getContext('2d');
+        new Chart(goalsCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ range(1, (stats.goals_by_matchday.scored|length if stats.goals_by_matchday else 0) + 1)|list|tojson }},
+                datasets: [{
+                    label: 'Geschossen',
+                    data: {{ stats.goals_by_matchday.scored|tojson if stats.goals_by_matchday else '[]' }},
+                    backgroundColor: successColor,
+                    borderRadius: 4
+                }, {
+                    label: 'Kassiert',
+                    data: {{ stats.goals_by_matchday.conceded|tojson if stats.goals_by_matchday else '[]' }},
+                    backgroundColor: dangerColor,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Spieltag' }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        title: { display: true, text: 'Tore' }
+                    }
+                }
+            }
+        });
+
+        // Home vs Away Points Chart
+        const homeAwayCtx = document.getElementById('homeAwayChart').getContext('2d');
+        new Chart(homeAwayCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Punkte', 'Siege', 'Tore', 'Gegentore'],
+                datasets: [{
+                    label: 'Heim',
+                    data: [
+                        {{ stats.home_stats.points if stats.home_stats else 0 }},
+                        {{ stats.home_stats.won if stats.home_stats else 0 }},
+                        {{ stats.home_stats.goals_for if stats.home_stats else 0 }},
+                        {{ stats.home_stats.goals_against if stats.home_stats else 0 }}
+                    ],
+                    backgroundColor: fczBlue,
+                    borderRadius: 4
+                }, {
+                    label: 'Auswärts',
+                    data: [
+                        {{ stats.away_stats.points if stats.away_stats else 0 }},
+                        {{ stats.away_stats.won if stats.away_stats else 0 }},
+                        {{ stats.away_stats.goals_for if stats.away_stats else 0 }},
+                        {{ stats.away_stats.goals_against if stats.away_stats else 0 }}
+                    ],
+                    backgroundColor: fczBlueDark,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: 'bottom' }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -229,7 +229,7 @@ def get_stats_from_api():
 def get_sample_data():
     """
     Return sample data for demonstration purposes
-    Based on typical Swiss Super League statistics
+    Based on typical Swiss Super League statistics for season 2024/25
     """
     return {
         'team_name': FCZ_TEAM_NAME,
@@ -269,7 +269,50 @@ def get_sample_data():
             {'opponent': 'Servette FC', 'result': 'D', 'score': '1-1', 'date': '2024-11-02'},
             {'opponent': 'FC Sion', 'result': 'W', 'score': '2-0', 'date': '2024-10-26'},
             {'opponent': 'FC Basel 1893', 'result': 'L', 'score': '0-1', 'date': '2024-10-19'},
-        ]
+        ],
+        # Additional detailed statistics for 2024/25 season
+        'home_stats': {
+            'played': 8,
+            'won': 4,
+            'drawn': 2,
+            'lost': 2,
+            'goals_for': 14,
+            'goals_against': 8,
+            'points': 14
+        },
+        'away_stats': {
+            'played': 7,
+            'won': 2,
+            'drawn': 2,
+            'lost': 3,
+            'goals_for': 8,
+            'goals_against': 10,
+            'points': 8
+        },
+        'monthly_stats': [
+            {'month': 'Juli', 'played': 2, 'won': 1, 'drawn': 1, 'lost': 0, 'goals_for': 4, 'goals_against': 2, 'points': 4},
+            {'month': 'August', 'played': 4, 'won': 2, 'drawn': 1, 'lost': 1, 'goals_for': 7, 'goals_against': 5, 'points': 7},
+            {'month': 'September', 'played': 3, 'won': 1, 'drawn': 1, 'lost': 1, 'goals_for': 4, 'goals_against': 4, 'points': 4},
+            {'month': 'Oktober', 'played': 3, 'won': 1, 'drawn': 0, 'lost': 2, 'goals_for': 3, 'goals_against': 4, 'points': 3},
+            {'month': 'November', 'played': 3, 'won': 1, 'drawn': 1, 'lost': 1, 'goals_for': 4, 'goals_against': 3, 'points': 4},
+        ],
+        'points_progression': [4, 7, 10, 11, 14, 15, 16, 16, 17, 18, 18, 19, 22, 22, 22],
+        'goals_by_matchday': {
+            'scored': [2, 2, 1, 2, 1, 1, 1, 0, 1, 1, 0, 1, 3, 0, 1],
+            'conceded': [1, 1, 2, 1, 1, 0, 1, 2, 1, 0, 2, 1, 1, 2, 2]
+        },
+        'top_scorers': [
+            {'name': 'Jonathan Okita', 'goals': 6, 'assists': 3},
+            {'name': 'Juan José Perea', 'goals': 5, 'assists': 2},
+            {'name': 'Labinot Bajrami', 'goals': 4, 'assists': 4},
+            {'name': 'Mirlind Kryeziu', 'goals': 3, 'assists': 1},
+            {'name': 'Nikola Katic', 'goals': 2, 'assists': 0},
+        ],
+        'clean_sheets': 5,
+        'avg_goals_per_match': 1.47,
+        'avg_conceded_per_match': 1.20,
+        'win_percentage': 40,
+        'form_last_5': ['L', 'W', 'D', 'W', 'L']
     }
 
 
