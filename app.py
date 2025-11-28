@@ -46,11 +46,17 @@ def get_fcz_stats():
     try:
         # Try to get data from API-Football
         if API_KEY:
-            return get_stats_from_api()
+            app.logger.info("Fetching data from API-Football...")
+            api_stats = get_stats_from_api()
+            if api_stats is not None:
+                app.logger.info("Successfully loaded data from API")
+                return api_stats
+            # If API returned None (no data), fall through to sample data
+            app.logger.info("No data from API, using sample data")
     except Exception as e:
         app.logger.error(f"API Error: {e}")
     
-    # Return sample/demo data if API is not available
+    # Return sample/demo data if API is not available or returned no data
     return get_sample_data()
 
 
@@ -94,6 +100,9 @@ def get_stats_from_api():
         response = requests.get(standings_url, headers=headers, params=params, timeout=10)
         if response.status_code == 200:
             data = response.json()
+            # Log API response errors (e.g., rate limit exceeded, invalid API key)
+            if data.get('errors'):
+                app.logger.error(f"API error response: {data.get('errors')}")
             if data.get('response') and len(data['response']) > 0:
                 league_data = data['response'][0].get('league', {})
                 standings_data = league_data.get('standings', [])
@@ -221,6 +230,12 @@ def get_stats_from_api():
                 stats['recent_matches'] = recent
     except Exception as e:
         app.logger.error(f"Error fetching recent matches: {e}")
+    
+    # Check if we actually got meaningful data from the API
+    # If standings is empty and FC Zürich position is not set, no real data was retrieved
+    if not stats['standings'] and stats['position'] is None:
+        app.logger.warning("API returned no data - falling back to sample data")
+        return None
     
     return stats
 
